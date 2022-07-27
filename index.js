@@ -24,9 +24,6 @@ app.post("/todos", async (reque, respon) => {
 	}
 });
 
-// app.get("/product_input", async (reque, respon) => {
-	
-// });
 
 app.post("/product/submit_clothing", (req, res, next) => {
 	 const values = [
@@ -36,8 +33,9 @@ app.post("/product/submit_clothing", (req, res, next) => {
 					req.body.Category, 
 					req.body.SupplierID, 
 					req.body.Name]
-	
-	
+		
+	//product_pk constraint defined by this code
+	//ALTER TABLE "OCR"."Product" ADD CONSTRAINT "product_pk" UNIQUE ("name", "description", "color");
 	 pool.query(`INSERT INTO "OCR"."Product"
 	 			( "description", "cost", "color", "catid", "sid", "name")
 	 			VALUES($1, $2, $3, $4, $5, $6)
@@ -57,6 +55,8 @@ app.post("/product/submit_clothing", (req, res, next) => {
 			req.body.Size, 
 			req.body.Quantity
 		]
+		//product_sizing_pk constraint defined by this sql code
+		//ALTER TABLE "OCR"."Product_Sizing" ADD CONSTRAINT "product_sizing_pk" UNIQUE ("pid", "size");
 		pool.query(`INSERT INTO "OCR"."Product_Sizing"
 		("pid", "size", "quantity")
 		VALUES
@@ -69,12 +69,13 @@ app.post("/product/submit_clothing", (req, res, next) => {
 	});
   });
 
-  app.get("/get_clothes", async(req, res)=>{
+  app.get("/get_clothes", async(req, res, next)=>{
 
-	pool.query(`select * from "OCR"."Product`,
-	  values, (q_err, q_res) => {
+	pool.query(`select * from "OCR"."Product"`,
+	   (q_err, q_res) => {
 	  if (q_err) return next(q_err);
-	  res.json(q_res.rows);
+	  console.log(q_res.rows);
+	  res.send(q_res.rows);
 		});
   });
 
