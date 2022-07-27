@@ -23,6 +23,75 @@ app.post("/todos", async (reque, respon) => {
 		console.error(err.message);
 	}
 });
+
+// app.get("/product_input", async (reque, respon) => {
+	
+// });
+
+app.post("/product/submit_clothing", (req, res, next) => {
+	 const values = [
+	 				req.body.Description, 
+					req.body.Cost,
+					req.body.Color,
+					req.body.Category, 
+					req.body.SupplierID, 
+					req.body.Name]
+	
+	
+	 pool.query(`INSERT INTO "OCR"."Product"
+	 			( "description", "cost", "color", "catid", "sid", "name")
+	 			VALUES($1, $2, $3, $4, $5, $6)
+				ON CONFLICT ON CONSTRAINT "product_pk"
+				DO 
+				NOTHING
+				`,
+	  values, (q_err, q_res) => {
+	  if (q_err) return next(q_err);
+	  res.json(q_res.rows);
+	});
+	var pid_result = pool.query(`select pid from "OCR"."Product" where "description" = '${req.body.Description}' and "name" = '${req.body.Name}'`);
+	pid_result.then(function(result) {
+		var pid = result.rows[0]["pid"];
+		const product_sizing_values = [
+			pid,
+			req.body.Size, 
+			req.body.Quantity
+		]
+		pool.query(`INSERT INTO "OCR"."Product_Sizing"
+		("pid", "size", "quantity")
+		VALUES
+		($1, $2, $3)
+		ON CONFLICT ON CONSTRAINT "product_sizing_pk"
+		DO 
+		UPDATE SET "quantity" = "OCR"."Product_Sizing"."quantity" + $3;`,
+		product_sizing_values
+	 )
+	});
+  });
+
+  app.get("/get_clothes", async(req, res)=>{
+
+	pool.query(`select * from "OCR"."Product`,
+	  values, (q_err, q_res) => {
+	  if (q_err) return next(q_err);
+	  res.json(q_res.rows);
+		});
+  });
+
+app.post("/category/submit_category", (req, res, next) => {
+	console.log(req.body);
+	const values = [
+					req.body.Category]
+	console.log(values);
+	pool.query(`INSERT INTO "OCR"."Category"
+				("category_name")
+				VALUES($1)`,
+		values, (q_err, q_res) => {
+		if (q_err) return next(q_err);
+		res.json(q_res.rows);
+	});
+});
+
 //get all todos
 app.get("/todos", async (reque, respon) => {
 	try {
