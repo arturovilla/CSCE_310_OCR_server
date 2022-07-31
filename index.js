@@ -3,77 +3,96 @@ const cors = require("cors");
 const app = express();
 const pool = require("./db");
 
+//Server index.js file
+
 //middleware whatever that is
 app.use(cors());
 app.use(express.json());
 //
 // ROUTES
 
-//create a todo THIS IS AN EXAMPLE FOR YALL TO GET STARTED
-app.post("/todos", async (reque, respon) => {
+
+
+app.post("/CourierDML", async (req, res) => {
+    try {
+	const { name, address, phone } = req.body;
+	const response = await pool.query(
+	    `INSERT INTO "OCR"."Courier"  (name, address, phone) VALUES ($1, $2, $3)`,
+	    [name, address, phone]
+	);
+	res.json({
+	    message: "A new Courier was created",
+	    body: {
+		courier: { name, address, phone },
+	    },
+	});
+    } catch (err) {
+	res.json(err);
+	console.error(err.message);
+    }
+});
+
+
+//get all Couriers
+app.get("/CourierDML", async (reque, respon) => {
 	try {
-		// console.log(reque.body);
-		const { description } = reque.body;
-		const newTodo = await pool.query(
-			"INSERT INTO todo (description) VALUES($1) RETURNING *",
-			[description]
-		);
-		respon.json(newTodo.rows[0]);
+		const allCouriers = await pool.query(`SELECT * FROM "OCR"."Courier";`);
+		respon.json(allCouriers.rows);
 	} catch (err) {
-		console.error(err.message);
+		respon.json(err);
+		console.error(err.message);		
 	}
 });
-//get all todos
-app.get("/todos", async (reque, respon) => {
-	try {
-		const allTodos = await pool.query("SELECT * FROM todo;");
-		respon.json(allTodos.rows);
-	} catch (err) {
-		console.error(err.message);
-	}
-});
-//get a todo
-app.get("/todos/:id", async (reque, respon) => {
+
+//get a Courier by id
+app.get("/CourierDML/:id", async (reque, respon) => {
 	try {
 		const { id } = reque.params;
-		const todo = await pool.query(
-			"SELECT description FROM todo WHERE todo_id = $1",
+		const Courier = await pool.query(
+			`SELECT * FROM "OCR"."Courier" WHERE coid = $1`,
 			[id]
 		);
-		respon.json(todo.rows[0]);
+		respon.json(Courier.rows[0]);
 	} catch (err) {
+		respon.json(err);
 		console.error(err.message);
 	}
 });
 
-//update a todo
-app.put("/todos/:id", async (reque, respon) => {
+//Update Courier by id
+app.put("/CourierDML/:id", async (req, res) => {
 	try {
-		const { id } = reque.params;
-		const { description } = reque.body;
-
-		const updateTodo = await pool.query(
-			"UPDATE todo SET description = $1 WHERE todo_id = $2",
-			[description, id]
-		);
-		respon.json("todo was updated");
+	  const id = parseInt(req.params.id);
+	  const { name, address, phone } = req.body;
+  
+	  const response = await pool.query(
+		`UPDATE "OCR"."Courier" SET name = $1, address = $2, phone = $3 WHERE coid = $4`,
+		[ name, address, phone, id ]
+	  );
+	  console.log(response);
+	  res.json("Courier was Updated");
 	} catch (err) {
-		console.error(err.message);
+	  res.json(err);
+	  console.error(err.message);
 	}
-});
-//delete  a todo
-app.delete("/todos/:id", async (reque, respon) => {
+  });
+
+
+//delete  a Courier
+app.delete("/CourierDML/:id", async (reque, respon) => {
 	try {
 		const { id } = reque.params;
-		const deleteTodo = await pool.query("DELETE FROM todo WHERE todo_id = $1", [
+		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Courier" WHERE coid = $1`, [
 			id,
 		]);
-		respon.json("todo was deleted");
+		respon.json("Courier was  deleted");
 	} catch (err) {
-		console.error(err.message);
-	}
+		respon.json(err);
+        console.error(err.message);
+	};
+
 });
-// END EXAMPLE
+
 //
 //
 //
