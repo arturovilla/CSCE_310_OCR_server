@@ -10,7 +10,7 @@ app.use(express.json());
 // ROUTES
 
 //supplier
-app.post("/supplier/submit_supplier", async (req, res, next) => {
+app.post("/SupplierDML", async (req, res, next) => {
 	try {
 		const {name, address, zipcode, country, phonenum, website} = req.body;
 		const response = await pool.query(`INSERT INTO "OCR"."Supplier" (name, address, zipcode, country, phonenum, website)
@@ -28,7 +28,7 @@ app.post("/supplier/submit_supplier", async (req, res, next) => {
 });
 
 //get all suppliers
-app.get("/get_supplier", async (req, res) => {
+app.get("/SupplierDML", async (req, res) => {
 	try {
 		const allSuppliers = await pool.query(`SELECT * FROM "OCR"."Supplier";`);
 		res.json(allSuppliers.rows);
@@ -39,7 +39,7 @@ app.get("/get_supplier", async (req, res) => {
 });
 
 //get a supplier by id
-app.get("/get_supplier/:id", async (req, res) => {
+app.get("/SupplierDML/:id", async (req, res) => {
 	try {
 		const {id} = req.params;
 		const Supplier = await pool.query(`SELECT * FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
@@ -51,7 +51,7 @@ app.get("/get_supplier/:id", async (req, res) => {
 });
 
 //update a supplier by id
-app.put("/update_supplier/:id", async (req, res) => {
+app.put("/SupplierDML/:id", async (req, res) => {
 	try {
 		const id = parseInt(req.params.id);
 		const {name, address, zipcode, country, phonenum, website} = req.body;
@@ -65,7 +65,7 @@ app.put("/update_supplier/:id", async (req, res) => {
 });
 
 //delete a supplier
-app.delete("delete_supplier/:id", async (req, res) => {
+app.delete("SupplierDML/:id", async (req, res) => {
 	try {
 		const {id} = req.params;
 		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
