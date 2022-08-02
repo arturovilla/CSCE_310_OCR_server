@@ -1,7 +1,5 @@
 # Documentaion
 
-## Arturo Villalobos
+## Lily Wang
 
-- responsible for Customer CRUD and authentification
-- did initial github set up
-- will do: front end component setup
+- responsible for Supplier CRUD
