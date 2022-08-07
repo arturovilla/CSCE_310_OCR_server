@@ -12,6 +12,75 @@ app.use(express.json());
 // ROUTES
 
 
+//supplier
+app.post("/SupplierDML", async (req, res, next) => {
+	try {
+		const {name, address, zipcode, country, phonenum, website} = req.body;
+		const response = await pool.query(`INSERT INTO "OCR"."Supplier" (name, address, zipcode, country, phonenum, website)
+		VALUES ($1, $2, $3, $4, $5, $6)`, [name, address, zipcode, country, phonenum, website]);
+		res.json({
+			message: "a new supplier was created",
+			body: {
+				supplier: {name, address, zipcode, country, phonenum, website},
+			},
+		});
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//get all suppliers
+app.get("/SupplierDML", async (req, res) => {
+	try {
+		const allSuppliers = await pool.query(`SELECT * FROM "OCR"."Supplier";`);
+		res.json(allSuppliers.rows);
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//get a supplier by id
+app.get("/SupplierDML/:id", async (req, res) => {
+	try {
+		const {id} = req.params;
+		const Supplier = await pool.query(`SELECT * FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
+		res.json(Supplier.rows[0]);
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//update a supplier by id
+app.put("/SupplierDML/:id", async (req, res) => {
+	try {
+		const id = parseInt(req.params.id);
+		const {name, address, zipcode, country, phonenum, website} = req.body;
+		const response = await pool.query(`UPDATE "OCR"."Supplier" SET name = $1, address = $2, zipcode = $3, country = $4, phonenum = $5, website = $6 WHERE sid = $7`, [name, address, zipcode, country, phonenum, website, id]);
+		console.log(response);
+		res.json("supplier has been updated");
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//delete a supplier
+app.delete("SupplierDML/:id", async (req, res) => {
+	try {
+		const {id} = req.params;
+		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
+		res.json("supplier has been deleted");
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+
+
 
 app.post("/ProductDML", async (req, res) => {
     try {
@@ -33,6 +102,7 @@ app.post("/ProductDML", async (req, res) => {
 });
 
 app.get("/ProductDML", async (reque, respon) => {
+
 	try {
 		const allProducts = await pool.query(`SELECT * FROM "OCR"."Product";`);
 		respon.json(allProducts.rows);
@@ -315,6 +385,7 @@ app.delete("/CourierDML/:id", async (reque, respon) => {
 //
 //
 //
+*/
 app.listen(3001, () => {
 	console.log("server has started on port 3001");
 });
