@@ -339,7 +339,7 @@ app.use("/check_login", (req, res) => {
 		}
 
 	});
-
+});
 
 
 
@@ -388,7 +388,7 @@ app.post("/product/submit_clothing", (req, res, next) => {
 			product_sizing_values
 		);
 	});
-
+});
 
 
 
@@ -398,6 +398,7 @@ app.get("/get_clothes", async (req, res, next) => {
 		if (q_err) return next(q_err);
 		res.send(q_res.rows);
 	});
+});
 
 
 app.post("/category/submit_category", (req, res, next) => {
