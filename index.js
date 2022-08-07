@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const pool = require("./db");
+const { copyDone } = require("pg-protocol/dist/messages");
 
 //Server index.js file
 
@@ -348,11 +349,6 @@ app.use('/check_login', (req, res) => {
 
 
 
-
-
-
-
-
 //
 //
 //
@@ -505,10 +501,13 @@ app.put("/customer/:cid", async (req, res) => {
 });
 
 
+
 //create a customer
 app.post("/customer", async (req, res) => {
 	try {
-		const {name, phone, password, zip_code, address, payment_type, payment_info, email, admin } = req.body;
+		const {name, phone, password, zip_code, address, payment_type, email} = req.body;
+		var admin = "false";
+		var payment_info = "NULL";
 		const response = await pool.query(
 			`INSERT INTO "OCR"."Customer"  ("name", "phone", "password", "zip_code", "address", "payment_type", "payment_info", "email", "admin") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 			[name, phone, password, zip_code, address, payment_type, payment_info, email, admin]
