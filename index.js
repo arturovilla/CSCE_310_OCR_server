@@ -158,7 +158,18 @@ app.delete("SupplierDML/:id", async (req, res) => {
 	}
 });
 
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// Aaron Chan
+//Propduct and catagory Entity
+//courier stuff
 
 
 app.post("/ProductDML", async (req, res) => {
@@ -261,12 +272,6 @@ app.post("/CategoryDML", async (req, res) => {
 });
 
 
-
-
-
-
-
-
 //get all Categorys
 app.get("/CategoryDML", async (reque, respon) => {
 	try {
@@ -325,96 +330,40 @@ app.delete("/CategoryDML/:id", async (reque, respon) => {
 	}
 });
 
-app.use("/check_login", (req, res) => {
-	const values = [req.body.email, req.body.password];
-	var cid_result = pool.query(
-		`SELECT cid from "OCR"."Customer" where "email" = $1 and "password" = $2 `,
-		values
-	);
-	cid_result.then(function (result) {
-		if (result.rows.length > 0) {
-			res.json({ valid_login: true, cid: result.rows[0]["cid"] });
-		} else {
-			res.json({ valid_login: false });
+app.use('/check_login', (req, res) => {
+	const values = [req.body.email, req.body.password]
+	var cid_result = pool.query(`SELECT cid from "OCR"."Customer" where "email" = $1 and "password" = $2 `, values);
+	cid_result.then(function(result){
+		if(result.rows.length > 0){
+			res.json({"valid_login": true, "cid": result.rows[0]["cid"]});
 		}
-
-	});
-
-
-
-
-app.post("/product/submit_clothing", (req, res, next) => {
-	const values = [
-		req.body.Description,
-		req.body.Cost,
-		req.body.Color,
-		req.body.Category,
-		req.body.SupplierID,
-		req.body.Name,
-	];
-
-	//product_pk constraint defined by this code
-	//ALTER TABLE "OCR"."Product" ADD CONSTRAINT "product_pk" UNIQUE ("name", "description", "color");
-	pool.query(
-		`INSERT INTO "OCR"."Product"
-	 			( "description", "cost", "color", "catid", "sid", "name")
-	 			VALUES($1, $2, $3, $4, $5, $6)
-				ON CONFLICT ON CONSTRAINT "product_pk"
-				DO 
-				NOTHING
-				`,
-		values,
-		(q_err, q_res) => {
-			if (q_err) return next(q_err);
-			res.json(q_res.rows);
+		else{
+			res.json({"valid_login": false});
 		}
-	);
-	var pid_result = pool.query(
-		`select pid from "OCR"."Product" where "description" = '${req.body.Description}' and "name" = '${req.body.Name}'`
-	);
-	pid_result.then(function (result) {
-		var pid = result.rows[0]["pid"];
-		const product_sizing_values = [pid, req.body.Size, req.body.Quantity];
-		//product_sizing_pk constraint defined by this sql code
-		//ALTER TABLE "OCR"."Product_Sizing" ADD CONSTRAINT "product_sizing_pk" UNIQUE ("pid", "size");
-		pool.query(
-			`INSERT INTO "OCR"."Product_Sizing"
-		("pid", "size", "quantity")
-		VALUES
-		($1, $2, $3)
-		ON CONFLICT ON CONSTRAINT "product_sizing_pk"
-		DO 
-		UPDATE SET "quantity" = "OCR"."Product_Sizing"."quantity" + $3;`,
-			product_sizing_values
-		);
-	});
-
-
-
-
-
-app.get("/get_clothes", async (req, res, next) => {
-	pool.query(`select * from "OCR"."Product"`, (q_err, q_res) => {
-		if (q_err) return next(q_err);
-		res.send(q_res.rows);
-	});
-
-
-app.post("/category/submit_category", (req, res, next) => {
-	const values = [req.body.Category];
-	pool.query(
-		`INSERT INTO "OCR"."Category"
-				("category_name")
-				VALUES($1)`,
-		values,
-		(q_err, q_res) => {
-			if (q_err) return next(q_err);
-			res.json(q_res.rows);
-		}
-	);
+	})
 });
 
 
+
+
+
+
+
+
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+// Ram 
+//Courier Entity
 //courier stuff
 //Update Courier by id
 app.put("/CourierDML/:id", async (req, res) => {
@@ -432,7 +381,7 @@ app.put("/CourierDML/:id", async (req, res) => {
 	  res.json(err);
 	  console.error(err.message);
 	}
-  });
+});
 
 
 //delete  a Courier
@@ -451,7 +400,7 @@ app.delete("/CourierDML/:id", async (reque, respon) => {
 });
 
 // post a new one couriuers
-	app.post("/CourierDML", async (req, res) => {
+app.post("/CourierDML", async (req, res) => {
     try {
 	const { name, address, phone } = req.body;
 	const response = await pool.query(
@@ -520,7 +469,7 @@ app.get("/customer", async (req, res) => {
 	}
 });
 //
-
+//get a customer by id
 app.get("/customer/:cid", async (req, res) => {
 	try {
 		const { cid } = req.params;
@@ -593,11 +542,7 @@ app.delete("/customer/:cid", async (req, res) => {
 //
 //
 //
-
-//
-//
-//
-
+// Server start
 app.listen(3001, () => {
 	console.log("server has started on port 3001");
 });
