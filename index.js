@@ -3,20 +3,85 @@ const cors = require("cors");
 const app = express();
 const pool = require("./db");
 
+//Server index.js file
+
 //middleware whatever that is
 app.use(cors());
 app.use(express.json());
 //
 // ROUTES
 
-// updateName: newProduct.name,
-//     updateDescription: newProduct.description,
-//     updateColor: newProduct.color,
-//     updateCategory: newProduct.category,
-//     updateSupplierID: newProduct.supplierID,
-//     updateCost: newProduct.cost,
-//     updateSize: newProduct.size,
-//     updateQuantity: newProduct.quantity
+
+//supplier
+app.post("/SupplierDML", async (req, res, next) => {
+	try {
+		const {name, address, zipcode, country, phonenum, website} = req.body;
+		const response = await pool.query(`INSERT INTO "OCR"."Supplier" (name, address, zipcode, country, phonenum, website)
+		VALUES ($1, $2, $3, $4, $5, $6)`, [name, address, zipcode, country, phonenum, website]);
+		res.json({
+			message: "a new supplier was created",
+			body: {
+				supplier: {name, address, zipcode, country, phonenum, website},
+			},
+		});
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//get all suppliers
+app.get("/SupplierDML", async (req, res) => {
+	try {
+		const allSuppliers = await pool.query(`SELECT * FROM "OCR"."Supplier";`);
+		res.json(allSuppliers.rows);
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//get a supplier by id
+app.get("/SupplierDML/:id", async (req, res) => {
+	try {
+		const {id} = req.params;
+		const Supplier = await pool.query(`SELECT * FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
+		res.json(Supplier.rows[0]);
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//update a supplier by id
+app.put("/SupplierDML/:id", async (req, res) => {
+	try {
+		const id = parseInt(req.params.id);
+		const {name, address, zipcode, country, phonenum, website} = req.body;
+		const response = await pool.query(`UPDATE "OCR"."Supplier" SET name = $1, address = $2, zipcode = $3, country = $4, phonenum = $5, website = $6 WHERE sid = $7`, [name, address, zipcode, country, phonenum, website, id]);
+		console.log(response);
+		res.json("supplier has been updated");
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+//delete a supplier
+app.delete("SupplierDML/:id", async (req, res) => {
+	try {
+		const {id} = req.params;
+		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
+		res.json("supplier has been deleted");
+	} catch (err) {
+		res.json(err);
+		console.error(err.message);
+	}
+});
+
+
+
+
 app.post("/ProductDML", async (req, res) => {
 	try {
 		const { name, description, cost, color, catid, sid, quantity, url, size } =
@@ -48,6 +113,7 @@ app.post("/ProductDML", async (req, res) => {
 });
 
 app.get("/ProductDML", async (reque, respon) => {
+
 	try {
 		const allProducts = await pool.query(`SELECT * FROM "OCR"."Product";`);
 		respon.json(allProducts.rows);
@@ -91,6 +157,7 @@ app.delete("/ProductDML/:id", async (reque, respon) => {
 });
 
 app.post("/CategoryDML", async (req, res) => {
+
 	try {
 		const { category_name } = req.body;
 		const response = await pool.query(
@@ -108,6 +175,13 @@ app.post("/CategoryDML", async (req, res) => {
 		console.error(err.message);
 	}
 });
+
+
+
+
+
+
+
 
 //get all Categorys
 app.get("/CategoryDML", async (reque, respon) => {
@@ -178,21 +252,11 @@ app.use("/check_login", (req, res) => {
 		} else {
 			res.json({ valid_login: false });
 		}
+
 	});
-});
-//create a todo THIS IS AN EXAMPLE FOR YALL TO GET STARTED
-app.post("/todos", async (reque, respon) => {
-	try {
-		const { description } = reque.body;
-		const newTodo = await pool.query(
-			"INSERT INTO todo (description) VALUES($1) RETURNING *",
-			[description]
-		);
-		respon.json(newTodo.rows[0]);
-	} catch (err) {
-		console.error(err.message);
-	}
-});
+
+
+
 
 app.post("/product/submit_clothing", (req, res, next) => {
 	const values = [
@@ -239,14 +303,17 @@ app.post("/product/submit_clothing", (req, res, next) => {
 			product_sizing_values
 		);
 	});
-});
+
+
+
+
 
 app.get("/get_clothes", async (req, res, next) => {
 	pool.query(`select * from "OCR"."Product"`, (q_err, q_res) => {
 		if (q_err) return next(q_err);
 		res.send(q_res.rows);
 	});
-});
+
 
 app.post("/category/submit_category", (req, res, next) => {
 	const values = [req.body.Category];
@@ -262,7 +329,90 @@ app.post("/category/submit_category", (req, res, next) => {
 	);
 });
 
-// END EXAMPLE
+
+//courier stuff
+//Update Courier by id
+app.put("/CourierDML/:id", async (req, res) => {
+	try {
+	  const id = parseInt(req.params.id);
+	  const { name, address, phone } = req.body;
+  
+	  const response = await pool.query(
+		`UPDATE "OCR"."Courier" SET name = $1, address = $2, phone = $3 WHERE coid = $4`,
+		[ name, address, phone, id ]
+	  );
+	  console.log(response);
+	  res.json("Courier was Updated");
+	} catch (err) {
+	  res.json(err);
+	  console.error(err.message);
+	}
+  });
+
+
+//delete  a Courier
+app.delete("/CourierDML/:id", async (reque, respon) => {
+	try {
+		const { id } = reque.params;
+		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Courier" WHERE coid = $1`, [
+			id,
+		]);
+		respon.json("Courier was  deleted");
+	} catch (err) {
+		respon.json(err);
+        console.error(err.message);
+	};
+
+});
+
+// post a new one couriuers
+	app.post("/CourierDML", async (req, res) => {
+    try {
+	const { name, address, phone } = req.body;
+	const response = await pool.query(
+	    `INSERT INTO "OCR"."Courier"  (name, address, phone) VALUES ($1, $2, $3)`,
+	    [name, address, phone]
+	);
+	res.json({
+	    message: "A new Courier was created",
+	    body: {
+		courier: { name, address, phone },
+	    },
+	});
+    } catch (err) {
+	res.json(err);
+	console.error(err.message);
+    }
+});
+
+//get all couriers
+app.get("/CourierDML", async (reque, respon) => {
+	try {
+		const allCouriers = await pool.query(`SELECT * FROM "OCR"."Courier";`);
+		respon.json(allCouriers.rows);
+
+	} catch (err) {
+		respon.json(err);
+		console.error(err.message);		
+	}
+});
+
+//get a Courier by id
+app.get("/CourierDML/:id", async (reque, respon) => {
+	try {
+		const { id } = reque.params;
+		const Courier = await pool.query(
+			`SELECT * FROM "OCR"."Courier" WHERE coid = $1`,
+			[id]
+		);
+		respon.json(Courier.rows[0]);
+	} catch (err) {
+		respon.json(err);
+		console.error(err.message);
+	}
+});
+
+
 //
 //
 //
@@ -284,7 +434,8 @@ app.get("/customer", async (req, res) => {
 		console.error(err.message);
 	}
 });
-//get a single customer
+//
+
 app.get("/customer/:cid", async (req, res) => {
 	try {
 		const { cid } = req.params;
@@ -297,6 +448,10 @@ app.get("/customer/:cid", async (req, res) => {
 		console.error(err.message);
 	}
 });
+
+
+
+
 
 //update a customer
 app.put("/customer/:cid", async (req, res) => {
@@ -314,6 +469,7 @@ app.put("/customer/:cid", async (req, res) => {
 		console.error(err.message);
 	}
 });
+
 
 //create a customer
 app.post("/customer", async (req, res) => {
@@ -351,9 +507,11 @@ app.delete("/customer/:cid", async (req, res) => {
 //
 //
 //
+
 //
 //
 //
+*/
 app.listen(3001, () => {
 	console.log("server has started on port 3001");
 });
