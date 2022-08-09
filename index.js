@@ -16,10 +16,11 @@ app.use(express.json());
 app.post("/OrderDML", async (reque, respon) => {
 	try {
 		// console.log(reque.body);
-		const { deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
+		const { orderid,deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
+		console.log(reque.body)
 		const newTodo = await pool.query(
-			`INSERT INTO "OCR"."Order" (deliveryStatus, orderDate, quantity, coid, cid) VALUES($1, $2, $3, $4, $5)`,
-			[deliveryStatus, orderDate, quantity, coid, cid]
+			`INSERT INTO "OCR"."Orders" (deliveryStatus, order_date, quantity, coid, cid,orderid) VALUES($1, $2, $3, $4, $5, $6)`,
+			[deliveryStatus, orderDate, quantity, coid, cid, orderid]
 		);
 		respon.json({
 			message: "New Order created",
@@ -36,7 +37,7 @@ app.post("/OrderDML", async (reque, respon) => {
 //get all orders
 app.get("/OrderDML", async (reque, respon) => {
 	try {
-		const allOrders = await pool.query(`SELECT * FROM "OCR"."Order";`);
+		const allOrders = await pool.query(`SELECT * FROM "OCR"."Orders";`);
 		respon.json(allOrders.rows);
 	} catch (err) {
 		respon.json(err);
@@ -66,7 +67,7 @@ app.put("/OrderDML/:id", async (reque, respon) => {
 		const { deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
 
 		const updateTodo = await pool.query(
-			`UPDATE "OCR"."Order" SET deliveryStatus = $1, orderDate = $2, quantity = $3, coid = $4, cid = $5 WHERE oid = $6`,
+			`UPDATE "OCR"."Orders" SET deliveryStatus = $1, order_date = $2, quantity = $3, coid = $4, cid = $5 WHERE orderid = $6`,
 			[ deliveryStatus, orderDate, quantity, coid, cid, id]
 		);
 		respon.json("Order was updated");
@@ -80,7 +81,7 @@ app.put("/OrderDML/:id", async (reque, respon) => {
 app.delete("/OrderDML/:id", async (reque, respon) => {
 	try {
 		const { id } = reque.params;
-		const deleteTodo = await pool.query(`DELETE FROM "OCR"."Order" WHERE oid = $1`, [
+		const deleteTodo = await pool.query(`DELETE FROM "OCR"."Orders" WHERE orderid = $1`, [
 			id,
 		]);
 		respon.json("todo was deleted");
@@ -508,7 +509,9 @@ app.put("/customer/:cid", async (req, res) => {
 //create a customer
 app.post("/customer", async (req, res) => {
 	try {
-		const {name, phone, password, zip_code, address, payment_type, payment_info, email, admin } = req.body;
+		const {name, phone, password, zip_code, address, payment_type, email} = req.body;
+		var admin = "false";
+		var payment_info = "NULL";
 		const response = await pool.query(
 			`INSERT INTO "OCR"."Customer"  ("name", "phone", "password", "zip_code", "address", "payment_type", "payment_info", "email", "admin") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 			[name, phone, password, zip_code, address, payment_type, payment_info, email, admin]
