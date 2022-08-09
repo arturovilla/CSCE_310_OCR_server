@@ -16,16 +16,16 @@ app.use(express.json());
 app.post("/OrderDML", async (reque, respon) => {
 	try {
 		// console.log(reque.body);
-		const { orderid,deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
+		const { orderid,deliverystatus, order_date, quantity, coid, cid } = reque.body;
 		console.log(reque.body)
 		const newTodo = await pool.query(
-			`INSERT INTO "OCR"."Orders" (deliveryStatus, order_date, quantity, coid, cid,orderid) VALUES($1, $2, $3, $4, $5, $6)`,
-			[deliveryStatus, orderDate, quantity, coid, cid, orderid]
+			`INSERT INTO "OCR"."Orders" (deliverystatus, order_date, quantity, coid, cid,orderid) VALUES($1, $2, $3, $4, $5, $6)`,
+			[deliverystatus, order_date, quantity, coid, cid, orderid]
 		);
 		respon.json({
 			message: "New Order created",
 			body: {
-				order: { deliveryStatus, orderDate, quantity, coid, cid }
+				order: { deliverystatus, order_date, quantity, coid, cid }
 			}
 		});
 	} catch (err) {
@@ -64,11 +64,11 @@ app.get("/OrderDML/:id", async (reque, respon) => {
 app.put("/OrderDML/:id", async (reque, respon) => {
 	try {
 		const id = parseInt(reque.params.id);
-		const { deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
+		const { deliverystatus, order_date, quantity, coid, cid } = reque.body;
 
 		const updateTodo = await pool.query(
-			`UPDATE "OCR"."Orders" SET deliveryStatus = $1, order_date = $2, quantity = $3, coid = $4, cid = $5 WHERE orderid = $6`,
-			[ deliveryStatus, orderDate, quantity, coid, cid, id]
+			`UPDATE "OCR"."Orders" SET deliverystatus = $1, order_date = $2, quantity = $3, coid = $4, cid = $5 WHERE orderid = $6`,
+			[ deliverystatus, order_date, quantity, coid, cid, id]
 		);
 		respon.json("Order was updated");
 	} catch (err) {
