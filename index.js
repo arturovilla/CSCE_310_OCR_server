@@ -63,7 +63,7 @@ app.get("/OrderDML/:id", async (reque, respon) => {
 //update an Order
 app.put("/OrderDML/:id", async (reque, respon) => {
 	try {
-		const id = parseInt(req.params.id);
+		const id = parseInt(reque.params.id);
 		const { deliveryStatus, orderDate, quantity, coid, cid } = reque.body;
 
 		const updateTodo = await pool.query(
@@ -148,7 +148,7 @@ app.put("/SupplierDML/:id", async (req, res) => {
 });
 
 //delete a supplier
-app.delete("SupplierDML/:id", async (req, res) => {
+app.delete("/SupplierDML/:id", async (req, res) => {
 	try {
 		const {id} = req.params;
 		const deleteCourier = await pool.query(`DELETE FROM "OCR"."Supplier" WHERE sid = $1`, [id]);
